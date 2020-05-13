@@ -1,6 +1,6 @@
 ### ![GA](https://cloud.githubusercontent.com/assets/40461/8183776/469f976e-1432-11e5-8199-6ac91363302b.png) General Assembly, Software Engineering Immersive
 
-# Pac Man
+# Food for Thought
 by [Ben Harris](https://github.com/benharris8), [Emma Hobday](https://github.com/emmahobday), [Denise Cheung](https://github.com/denisecheung3) and [Subash Limbu](https://github.com/subashlimbu).
 
 ## Table of Contents
