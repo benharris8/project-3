@@ -10,7 +10,8 @@ by [Ben Harris](https://github.com/benharris8), [Emma Hobday](https://github.com
 4. [Screenshots](#Screenshots)
 5. [Challenges](#Challenges)
 6. [Potential Future Features](#Potential-Future-Features)
-7. [Lessons Learned](#Lessons-Learned)
+7. [Bugs](#Bugs)
+8. [Lessons Learned](#Lessons-Learned)
 
 
 # Overview
@@ -564,6 +565,11 @@ This was my first time using git with a group of people working on the same proj
 
 - Site-wide CSS overhaul to improve user experience.
 - User profile picture display in the profile page.
+- Checking for valid address upon submitting a restaurant.
+
+# Bugs
+
+- Styling errors when resizing certain pages
 
 # Lessons Learned
 
