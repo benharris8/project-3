@@ -27,7 +27,7 @@ Food for Thought is a website where users can browse restaurants in the London a
 # Implementation
 ## Backend
 
-MongoDB Models
+### MongoDB Models
 
 We designed our MongoDB data models first as it is important to make sure they are designed correctly from the start.
 
@@ -144,7 +144,7 @@ schema.methods.validatePassword = function validatePassword(password) {
 }
 ```
 
-Auth
+### Auth
 
 The userController controls the login/register end-point logic.
 
@@ -227,7 +227,7 @@ function secureRoute(req, res, next) {
 }
 ```
 
-Endpoints
+### Endpoints
 
 There are basic end-points for getting all of the restaurants and getting a specific restaurant.
 There are also end-points for adding restaurants and editing/deleting specific restaurants.
@@ -531,18 +531,30 @@ The log in and register pages have forms which, when the form is submitted, will
 
 
 # Screenshots
+Login Errors
 ![login-failed](screenshots/loginfail.png)
+Registration Errors
 ![register-failed](screenshots/registerfail.png)
+Single Restaurant Upper(Logged Out)
 ![rosso-loggedout1](screenshots/rossologgedout1.png)
+Single Restaurant Lower(Logged Out)
 ![rosso-loggedout2](screenshots/rossologgedout2.png)
+Single Restaurant (Logged In
 ![rosso-loggedin](screenshots/rossologgedin.png)
+Comment (Left by current user)
 ![comment](screenshots/comment.png)
+Favourite Restaurants
 ![favourites](screenshots/favourites.png)
+Homepage (Logged In)
 ![home-loggedin](screenshots/homeloggedin.png)
+Homepage (Logged Out)
 ![home-loggedout](screenshots/homeloggedout.png)
+Profile Page
 ![profile-page](screenshots/profilepage.png)
-![searched-restaurants](screenshots/searchedrestaurants.png)
+Unsearched Restaurants
 ![unsearched-restaurants](screenshots/unsearchedrestaurants.png)
+Searched Restaurants
+![searched-restaurants](screenshots/searchedrestaurants.png)
 
 # Challenges
 
