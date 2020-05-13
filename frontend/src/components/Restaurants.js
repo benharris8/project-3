@@ -84,9 +84,6 @@ class Restaurants extends React.Component {
         <div className="columns is-full-mobile is-multiline is-centered mobile-padding">
 
           {this.state.filteredRestaurants.map(restaurant => {
-            console.log(restaurant.name)
-            console.log(restaurant.image)
-            console.log(restaurant)
             return <Link key={restaurant._id} className="column is-one-quarter-desktop is-one-third-tablet is-full-mobile" to={`/restaurant/${restaurant._id}`}>
               <div className="card">
                 <div className="card-image">

@@ -6,11 +6,11 @@ by [Ben Harris](https://github.com/benharris8), [Emma Hobday](https://github.com
 ## Table of Contents
 1. [Overview](#Overview)
 2. [Technologies Used](#Technologies-Used)
-4. [Implementation](#Implementation)
-5. [Screenshots](#Screenshots)
-6. [Challenges](#Challenges)
-7. [Potential Future Features](#Potential-Future-Features)
-8. [Lessons Learned](#Lessons-Learned)
+3. [Implementation](#Implementation)
+4. [Screenshots](#Screenshots)
+5. [Challenges](#Challenges)
+6. [Potential Future Features](#Potential-Future-Features)
+7. [Lessons Learned](#Lessons-Learned)
 
 
 # Overview
@@ -383,27 +383,177 @@ expressServer.post('/api/upload', upload.array('image'), (req, res) => {
 
 ## Frontend
 
-Restaurants
+### Restaurants
 
-We used Bulma cards to display 
+A request to the restaurants end-point is made with Axios which returns a full list of restaurant objects from the database and saves them into the React state. Link is used from React Router in order to make each card link to a single restaurant page with all of that restaurant's information.
+```js
+axios.get('/api/restaurants')
+  .then((resp) => this.setState({
+    restaurants: resp.data,
+    filteredRestaurants: resp.data
+}))
+```
+```jsx
+<div className="columns is-full-mobile is-multiline is-centered mobile-padding">
+  {this.state.filteredRestaurants.map(restaurant => {
+    return <Link key={restaurant._id} className="column is-one-quarter-desktop is-one-third-tablet is-full-mobile" to={`/restaurant/${restaurant._id}`}>
+      <div className="card">
+        <div className="card-image">
+          <figure className="image is-4by3">
+            <img src={restaurant.image} alt="Placeholder image" className="resImage" />
+            <div className="card-content">
+              <div className="white">{restaurant.name}</div>
+              <p className="subtitle">{restaurant.address}</p>
+            </div>
+          </figure>
+        </div>
+      </div>
+    </Link>
+  })}
+</div>
+```
+The restaurants are rendered using Bulma cards with their names appearing when the user hovers over the card. This is done with a CSS ':hover' class.
 
-Single Restaurant
+This page also allows the user to search through the list of restaurants based on their name via text entry and/or their type of cuisine with a drop-down menu. Making both search methods work together proved to be a bit difficult. We had to write handlers for the search bar and the drop-down which checked if the other had been used already. If the other had been used then the already applied filter needed to be reapplied with the new filter.
 
-Search
+```js
+  handleSearch(event) { 
+    this.setState({ searchText: event.target.value.toLowerCase() }) 
+    if (!this.state.dropDownOption) { 
+      const onlySearched = this.state.restaurants.filter(restaurant => {
+        return restaurant.name.toLowerCase().includes(event.target.value.toLowerCase())
+      })
+      this.setState({ filteredRestaurants: onlySearched })
+    } else { 
+      const bothUsed = this.state.restaurants.filter(restaurant => {
+        return (restaurant.cuisine.includes(this.state.dropDownOption) && restaurant.name.toLowerCase().includes(event.target.value))
+      })
+      this.setState({ filteredRestaurants: bothUsed })
+    }
+  }
+
+  handleDropdown(event) { 
+
+    this.setState({ dropDownOption: event.target.value })
+    if (!this.state.searchText) { 
+      const onlyDropdownSelected = this.state.restaurants.filter(restaurant => {
+        return restaurant.cuisine.includes(event.target.value)
+      })
+      this.setState({ filteredRestaurants: onlyDropdownSelected })
+    } else { 
+      const bothUsed = this.state.restaurants.filter(restaurant => {
+        return (restaurant.cuisine.includes(event.target.value) && restaurant.name.toLowerCase().includes(this.state.searchText))
+      })
+      this.setState({ filteredRestaurants: bothUsed })
+    }
+
+    if (event.target.value === 'Search All') {
+      if (!this.state.searchText) {  
+        this.setState({ filteredRestaurants: this.state.restaurants })
+      } else { 
+        const onlySearched = this.state.restaurants.filter(restaurant => {
+          return restaurant.name.toLowerCase().includes(this.state.searchText.toLowerCase())
+        })
+        this.setState({ filteredRestaurants: onlySearched })
+      }
+    }
+
+  }
+
+```
+
+
+### Single Restaurant
+
+An Axios request is made with the id of the restaurant taken from the link and the response (the full restaurant data) is saved to state.
+The restaurant's images are retrieved with another request to the images end-point.
+
+If the user is logged in then the email button appears and can be clicked to send the restaurant's details to the user's email address. This happens with an Axios request to the email end-point. 
+
+The comments are loaded in with a seperate class React component which makes an api call to the comments end-point and saves the comments into state.
+Each comment is checked for if the user has liked or disliked it and the state for that comment is changed accordingly.
+The state changes gives the like/dislike buttons the correct CSS classes to change the colors of the buttons based on whether or not the user has liked the comment.
+
+```js
+<FontAwesomeIcon id='comment-rating' className={isLiked ? 'liked' : ''} icon={faThumbsUp} onClick={() => this.handleLike()} />
+```
+
+When the user clicks like on a comment the state changes to liked and a call to the like end-point is sent which adds the user's id to the comments likedBy list. If the user has already disliked the comment then a call is made to the swap end-point which removes the user id from the dislikes and adds it to the likes. Similarly if the user has already liked the comment and they click it again then a call is made to the unlike end-point which removes them from the liked list.
+
+The same thing happens for the dislikes with a handleDislike() method.
+
+```js
+  handleLike() {
+    if (auth.isLoggedIn()) {
+      const { restaurantId, comment } = this.props
+      const { likeCount, dislikeCount } = this.state
+      const url = `/api/restaurant/${restaurantId}/comment/${comment._id}/`
+      const authConfig = {
+        headers: {
+          'Authorization': `Bearer ${auth.getToken()}`
+        }
+      }
+      if (this.state.isLiked === true) {
+        console.log('unliked')
+        Axios.put(url + 'unlike', {}, authConfig)
+          .then(res => console.log('ok ', res))
+          .catch(err => console.log('err ', err))
+        this.setState({
+          isLiked: false,
+          likeCount: likeCount - 1
+        })
+      } else if (this.state.isDisliked === true) {
+        console.log('liked and undisliked')
+        Axios.put(url + 'swaplike', {}, authConfig)
+          .then(res => console.log('ok ', res))
+          .catch(err => console.log('err ', err))
+        this.setState({
+          isLiked: true,
+          isDisliked: false,
+          likeCount: likeCount + 1,
+          dislikeCount: dislikeCount - 1
+        })
+      } else {
+        console.log('onlyliked')
+        Axios.put(url + 'like', {}, authConfig)
+          .then(res => console.log('ok ', res))
+          .catch(err => console.log('err ', err))
+        this.setState({
+          isLiked: true,
+          likeCount: likeCount + 1
+        })
+      }
+    }
+  }
+```
+
+The log in and register pages have forms which, when the form is submitted, will generate an Axios request to the relevant end-point with the data from the form as the payload. If the Axios request returns an error the error is displayed with red text underneath the bad field.
+
 
 # Screenshots
-![]()
+![login-failed](screenshots/loginfail.png)
+![register-failed](screenshots/registerfail.png)
+![rosso-loggedout1](screenshots/rossologgedout1.png)
+![rosso-loggedout2](screenshots/rossologgedout2.png)
+![rosso-loggedin](screenshots/rossologgedin.png)
+![comment](screenshots/comment.png)
+![favourites](screenshots/favourites.png)
+![home-loggedin](screenshots/homeloggedin.png)
+![home-loggedout](screenshots/homeloggedout.png)
+![profile-page](screenshots/profilepage.png)
+![searched-restaurants](screenshots/searchedrestaurants.png)
+![unsearched-restaurants](screenshots/unsearchedrestaurants.png)
 
 # Challenges
 
-CSS
-
-Frontend Error Handling / Backend Error Formatting
+This was my first time using git with a group of people working on the same project and I found the learning process for creating and merging new branches to be quite difficult.
 
 # Potential Future Features
 
-Nicer CSS
+- Site-wide CSS overhaul to improve user experience.
+- User profile picture display in the profile page.
 
 # Lessons Learned
 
-Plan more.
+- Spend more time on the design phase to make sure you have the data models correct before moving on to implementation.
+- Spend more time designing the overall look of the site before implementing CSS in order to make writing CSS easier.
